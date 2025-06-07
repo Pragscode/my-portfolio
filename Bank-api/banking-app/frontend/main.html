@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureBank - Your Digital Banking Partner</title>
+    <style>
+        :root {
+            --primary-color: #2a6592;
+            --secondary-color: #4caf50;
+            --accent-color: #f7c948;
+            --light-color: #f5f7fa;
+            --dark-color: #333;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            line-height: 1.6;
+            color: var(--dark-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3d8b40;
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5b93e;
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .main-section {
+            padding: 40px 0;
+            min-height: calc(100vh - 100px);
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .section-title {
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .form-card {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .account-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .account-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            flex: 1;
+            min-width: 300px;
+            margin-right: 20px;
+        }
+
+        .account-card:last-child {
+            margin-right: 0;
+        }
+
+        .balance {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+
+        .transaction-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .transaction-type {
+            font-weight: 600;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .transaction-deposit {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+        }
+
+        .transaction-withdrawal {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-date {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .account-info {
+                flex-direction: column;
+            }
+            
+            .account-card {
+                margin-right: 0;
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo" onclick="showPage('home')">
+                <i class="fas fa-university"></i> SecureBank
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#" onclick="showPage('home')">Home</a></li>
+                <li><a href="#" onclick="showPage('register')" id="registerLink">Register</a></li>
+                <li><a href="#" onclick="showPage('login')" id="loginLink">Login</a></li>
+                <li><a href="#" onclick="showPage('dashboard')" id="dashboardLink" style="display: none;">Dashboard</a></li>
+                <li><a href="#" id="logoutLink" style="display: none;" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <section class="main-section page active" id="home">
+        <div class="container">
+            <div class="card">
+                <h1 class="section-title">Welcome to SecureBank</h1>
+                <p class="text-center">Your trusted partner for secure and reliable banking services.</p>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="showPage('register')">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Register Page -->
+    <section class="main-section page" id="register">
+        <div class="container">
+            <div class="card form-card">
+                <h2 class="section-title">Create Your Account</h2>
+                <div id="registerAlert" class="alert" style="display: none;"></div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required placeholder="Enter your email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="Create a secure password">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" required placeholder="Enter your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" required placeholder="Enter your address">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+                </form>
+                <p class="text-center" style="margin-top: 20px;">
+                    Already have an account? <a href="#" onclick="showPage('login')">Login here</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Account Creation Page -->
+    <section class="main-section page" id="createAccount">
+        <div class="container">
+            <div class="card form-card">
+                <h2 class="section-title">Generate Account Number</h2>
+                <div id="accountAlert" class="alert" style="display: none;"></div>
+                <p class="text-center">Click the button below to generate your unique account number.</p>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button id="generateAccountBtn" class="btn btn-primary">Generate Account Number</button>
+                </div>
+                <div id="accountDetails" style="margin-top: 30px; display: none;">
+                    <div class="alert alert-success">
+                        <p><strong>Account Number:</strong> <span id="accountNumber"></span></p>
+                        <p><strong>Temporary Password:</strong> <span id="tempPassword"></span></p>
+                        <p class="text-center" style="margin-top: 10px;">
+                            <strong>Important:</strong> Please note down your temporary password as it will be needed to create your permanent password.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="showPage('createPermanentPassword')">Create Permanent Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Create Permanent Password Page -->
+    <section class="main-section page" id="createPermanentPassword">
+        <div class="container">
+            <div class="card form-card">
+                <h2 class="section-title">Create Permanent Password</h2>
+                <div id="permanentPasswordAlert" class="alert" style="display: none;"></div>
+                <form id="permanentPasswordForm">
+                    <div class="form-group">
+                        <label for="accountNumberInput">Account Number</label>
+                        <input type="text" id="accountNumberInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tempPasswordInput">Temporary Password</label>
+                        <input type="password" id="tempPasswordInput" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Permanent Password</button>
+                </form>
+                <div id="permanentPasswordDetails" style="margin-top: 30px; display: none;">
+                    <div class="alert alert-success">
+                        <p><strong>Your Permanent Password:</strong> <span id="permanentPassword"></span></p>
+                        <p class="text-center" style="margin-top: 10px;">
+                            <strong>Important:</strong> Please note down your permanent password as it will be needed to login to your account.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="showPage('login')">Proceed to Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Page -->
+    <section class="main-section page" id="login">
+        <div class="container">
+            <div class="card form-card">
+                <h2 class="section-title">Login to Your Account</h2>
+                <div id="loginAlert" class="alert" style="display: none;"></div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginAccountNumber">Account Number</label>
+                        <input type="text" id="loginAccountNumber" required placeholder="Enter your account number">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password (Permanent Password)</label>
+                        <input type="password" id="loginPassword" required placeholder="Enter your permanent password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+                <p class="text-center" style="margin-top: 20px;">
+                    Don't have an account? <a href="#" onclick="showPage('register')">Register here</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Page -->
+    <section class="main-section page" id="dashboard">
+        <div class="container">
+            <h2 class="section-title">Welcome, <span id="userName"></span></h2>
+            
+            <div class="account-info">
+                <div class="account-card">
+                    <h3>Account Information</h3>
+                    <p><strong>Account Number:</strong> <span id="dashboardAccountNumber"></span></p>
+                    <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                    <h4>Current Balance</h4>
+                    <div class="balance">$<span id="accountBalance">0.00</span></div>
+                </div>
+                
+                <div class="account-card">
+                    <h3>Quick Actions</h3>
+                    <form id="transactionForm">
+                        <div class="form-group">
+                            <label for="transactionType">Transaction Type</label>
+                            <select id="transactionType" required>
+                                <option value="deposit">Deposit</option>
+                                <option value="withdrawal">Withdrawal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionAmount">Amount ($)</label>
+                            <input type="number" id="transactionAmount" required min="0.01" step="0.01">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Transaction</button>
+                    </form>
+                    <div id="transactionAlert" class="alert" style="display: none; margin-top: 20px;"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Recent Transactions</h3>
+                <ul class="transaction-list" id="transactionList">
+                    <li class="text-center" id="noTransactions">No transactions yet.</li>
+                </ul>
+            </div>kf
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SecureBank. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let currentToken = null;
+        // API base URL
+const baseUrl = 'http://127.0.0.1:8000';
+
+// Helper function for API calls that handles CORS issues
+async function apiCall(endpoint, method, body = null, token = null) {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    klkkff
+    const options = {
+        method: method,
+        headers: headers,
+        mode: 'cors'
+    };
+    
+    if (body && (method === 'POST' || method === 'PUT')) {
+        options.body = JSON.stringify(body);
+    }
+    
+    try {
+        const response = await fetch(`${baseUrl}${endpoint}`, options);
+        const data = await response.json();
+        return { ok: response.ok, status: response.status, data };
+    } catch (error) {
+        console.error(`API Error (${endpoint}):`, error);
+        return { 
+            ok: false, 
+            status: 0, 
+            data: { 
+                error: error.message || 'Network error', 
+                detail: 'Unable to connect to the server. Make sure the backend is running and CORS is enabled.'
+            } 
+        };
+    }
+}
+
+        // Function to show a specific page
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show the selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Check if user is logged in (token exists)
+            updateNavigation();
+        }
+
+        // Update navigation based on authentication status
+        function updateNavigation() {
+            const token = localStorage.getItem('token');
+            const registerLink = document.getElementById('registerLink');
+            const loginLink = document.getElementById('loginLink');
+            const dashboardLink = document.getElementById('dashboardLink');
+            const logoutLink = document.getElementById('logoutLink');
+            
+            if (token) {
+                registerLink.style.display = 'none';
+                loginLink.style.display = 'none';
+                dashboardLink.style.display = 'block';
+                logoutLink.style.display = 'block';
+            } else {
+                registerLink.style.display = 'block';
+                loginLink.style.display = 'block';
+                dashboardLink.style.display = 'none';
+                logoutLink.style.display = 'none';
+            }
+        }
+
+        // Function to show alert
+        function showAlert(elementId, message, type) {
+            const alertElement = document.getElementById(elementId);
+            alertElement.textContent = message;
+            alertElement.className = `alert alert-${type}`;
+            alertElement.style.display = 'block';
+            
+            // Auto hide alert after 5 seconds
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Register form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+            
+            const result = await apiCall('/register', 'POST', data);
+            
+            if (result.ok) {
+                showAlert('registerAlert', 'Registration successful!', 'success');
+                localStorage.setItem('token', result.data.access_token);
+                currentToken = result.data.access_token;
+                
+                // Clear the form
+                document.getElementById('registerForm').reset();
+                
+                // Redirect to account creation page
+                setTimeout(() => {
+                    showPage('createAccount');
+                }, 1000);
+            } else {
+                const errorMsg = result.data.error || result.data.detail || 'Registration failed. Make sure the backend server is running.';
+                showAlert('registerAlert', errorMsg, 'danger');
+            }
+        });
+
+        // Generate Account Number
+        document.getElementById('generateAccountBtn').addEventListener('click', async () => {
+            const token = localStorage.getItem('token') || currentToken;
+            
+            if (!token) {
+                showAlert('accountAlert', 'Authentication required. Please login first.', 'danger');
+                return;
+            }
+            
+            const result = await apiCall('/account_number', 'POST', null, token);
+            
+            if (result.ok) {
+                document.getElementById('accountNumber').textContent = result.data.account_number;
+                document.getElementById('tempPassword').textContent = result.data.temporary_password;
+                document.getElementById('accountDetails').style.display = 'block';
+                
+                // Store account number for future use
+                localStorage.setItem('accountNumber', result.data.account_number);
+                localStorage.setItem('tempPassword', result.data.temporary_password);
+            } else {
+                const errorMsg = result.data.detail || result.data.error || 'Failed to generate account number';
+                showAlert('accountAlert', errorMsg, 'danger');
+            }
+        });
+
+        // Create Permanent Password Form
+        document.getElementById('permanentPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                account_number: document.getElementById('accountNumberInput').value,
+                temporary_password: document.getElementById('tempPasswordInput').value
+            };
+            
+            const result = await apiCall('/account_number/per-password', 'POST', data);
+            
+            if (result.ok && result.data.permanent_password) {
+                document.getElementById('permanentPassword').textContent = result.data.permanent_password;
+                document.getElementById('permanentPasswordDetails').style.display = 'block';
+                
+                // Store permanent password for auto-fill in login
+                localStorage.setItem('permanentPassword', result.data.permanent_password);
+            } else {
+                const errorMsg = result.data.detail || result.data.message || result.data.error || 'Failed to create permanent password';
+                showAlert('permanentPasswordAlert', errorMsg, 'danger');
+            }
+        });
+
+        // Auto-fill account creation form if data is available
+        document.addEventListener('DOMContentLoaded', () => {
+            const accountNumber = localStorage.getItem('accountNumber');
+            const tempPassword = localStorage.getItem('tempPassword');
+            
+            if (accountNumber) {
+                document.getElementById('accountNumberInput').value = accountNumber;
+            }
+            
+            if (tempPassword) {
+                document.getElementById('tempPasswordInput').value = tempPassword;
+            }
+            
+            // Also auto-fill login form
+            const permanentPassword = localStorage.getItem('permanentPassword');
+            
+            if (accountNumber) {
+                document.getElementById('loginAccountNumber').value = accountNumber;
+            }
+            
+            if (permanentPassword) {
+                document.getElementById('loginPassword').value = permanentPassword;
+            }
+            
+            // Check if user is already logged in
+            updateNavigation();
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetchAccountInfo();
+            }
+        });
+
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                account_number: document.getElementById('loginAccountNumber').value,
+                password: document.getElementById('loginPassword').value
+            };
+            
+            const result = await apiCall('/login', 'POST', data);
+            
+            if (result.ok) {
+                showAlert('loginAlert', 'Login successful!', 'success');
+                localStorage.setItem('token', result.data.access_token);
+                currentToken = result.data.access_token;
+                
+                // Clear the form
+                document.getElementById('loginForm').reset();
+                
+                // Fetch account info and redirect to dashboard
+                setTimeout(() => {
+                    fetchAccountInfo();
+                    showPage('dashboard');
+                }, 1000);
+            } else {
+                const errorMsg = result.data.detail || result.data.error || 'Login failed';
+                showAlert('loginAlert', errorMsg, 'danger');
+            }
+        });
+
+        // Fetch account information
+        async function fetchAccountInfo() {
+            const token = localStorage.getItem('token') || currentToken;
+            
+            if (!token) {
+                return;
+            }
+            
+            const result = await apiCall('/myaccount', 'GET', null, token);
+            
+            if (result.status === 401) {
+                // Token expired or invalid
+                localStorage.removeItem('token');
+                showPage('login');
+                return;
+            }
+            
+            if (result.ok) {
+                // Update dashboard with account info
+                document.getElementById('userName').textContent = result.data.account.name;
+                document.getElementById('dashboardAccountNumber').textContent = result.data.account.account_number;
+                document.getElementById('userEmail').textContent = result.data.account.email;
+                document.getElementById('accountBalance').textContent = parseFloat(result.data.account.balance).toFixed(2);
+                
+                // Update transactions list
+                updateTransactionsList(result.data.account.transactions);
+            } else {
+                console.error('Error fetching account info:', result.data.error || result.data.detail);
+            }
+        }
+
+        // Update transactions list
+        function updateTransactionsList(transactions) {
+            const transactionList = document.getElementById('transactionList');
+            const noTransactions = document.getElementById('noTransactions');
+            
+            if (transactions && transactions.length > 0) {
+                noTransactions.style.display = 'none';
+                
+                // Clear existing transactions
+                transactionList.innerHTML = '';
+                
+                // Add transactions
+                transactions.forEach(transaction => {
+                    const li = document.createElement('li');
+                    li.className = 'transaction-item';
+                    
+                    const date = new Date(transaction.transaction_date).toLocaleDateString();
+                    const time = new Date(transaction.transaction_date).toLocaleTimeString();
+                    
+                    li.innerHTML = `
+                        <div>
+                            <span class="transaction-type transaction-${transaction.type}">${transaction.type}</span>
+                            <span class="transaction-date">${date} ${time}</span>
+                        </div>
+                        <span class="transaction-amount">$${parseFloat(transaction.amount).toFixed(2)}</span>
+                    `;
+                    
+                    transactionList.appendChild(li);
+                });
+            } else {
+                noTransactions.style.display = 'block';
+            }
+        }
+
+        // Transaction form submission
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('token') || currentToken;
+            
+            if (!token) {
+                showAlert('transactionAlert', 'Authentication required. Please login first.', 'danger');
+                return;
+            }
+            
+            const data = {
+                type: document.getElementById('transactionType').value,
+                amount: parseFloat(document.getElementById('transactionAmount').value)
+            };
+            
+            const result = await apiCall('/myaccount', 'POST', data, token);
+            
+            if (result.ok) {
+                showAlert('transactionAlert', `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} successful!`, 'success');
+                
+                // Update balance
+                document.getElementById('accountBalance').textContent = parseFloat(result.data.new_balance).toFixed(2);
+                
+                // Clear form
+                document.getElementById('transactionForm').reset();
+                
+                // Refresh account info to update transactions
+                fetchAccountInfo();
+            } else {
+                const errorMsg = result.data.detail || result.data.error || `Failed to process ${data.type}`;
+                showAlert('transactionAlert', errorMsg, 'danger');
+            }
+        });
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            currentToken = null;
+            showPage('home');
+            updateNavigation();
+        }
+
+        // Initialize the UI
+        updateNavigation();
+    </script>
+</body>
+</html>
