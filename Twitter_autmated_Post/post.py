@@ -7,6 +7,8 @@ import argparse
 from typing import Optional, Dict, Any, Tuple
 from dotenv import load_dotenv
 import openai
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from http_utils import create_robust_session
 
 # Load environment variables
 load_dotenv()
@@ -27,6 +29,63 @@ ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
 # OpenAI API credentials
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# Create robust HTTP client for external API calls
+http_client = create_robust_session(max_retries=3, backoff_factor=1.0, timeout=30)
+
+def make_robust_api_request(url: str, method: str = "GET", headers: Optional[Dict] = None, 
+                          data: Optional[Dict] = None, json_data: Optional[Dict] = None) -> Optional[requests.Response]:
+    """
+    Make a robust API request with enhanced error handling for 403 and other errors.
+    
+    Args:
+        url: The API endpoint URL
+        method: HTTP method (GET, POST, etc.)
+        headers: Request headers
+        data: Form data
+        json_data: JSON data
+        
+    Returns:
+        Response object if successful, None if failed
+    """
+    try:
+        logger.info(f"Making {method} request to {url}")
+        
+        if method.upper() == "GET":
+            response = http_client.get(url, headers=headers)
+        elif method.upper() == "POST":
+            response = http_client.post(url, headers=headers, data=data, json=json_data)
+        else:
+            logger.error(f"Unsupported HTTP method: {method}")
+            return None
+            
+        if response is None:
+            logger.error(f"Network error occurred for {url}")
+            return None
+            
+        if response.status_code == 403:
+            logger.error(f"403 Forbidden error for {url}")
+            logger.error("This could be due to:")
+            logger.error("- Invalid or expired API credentials")
+            logger.error("- Rate limiting")
+            logger.error("- IP address blocked")
+            logger.error("- Insufficient permissions")
+            return response
+            
+        if response.status_code == 401:
+            logger.error(f"401 Unauthorized error for {url}")
+            logger.error("Check your API credentials and permissions")
+            return response
+            
+        if response.status_code != 200:
+            logger.warning(f"Non-200 status code {response.status_code} for {url}")
+            
+        return response
+        
+    except Exception as e:
+        logger.error(f"Exception occurred during API request to {url}: {e}")
+        return None
+
+
 def authenticate_twitter() -> Optional[tweepy.Client]:
     """Authenticate with Twitter API."""
     try:
@@ -44,7 +103,7 @@ def authenticate_twitter() -> Optional[tweepy.Client]:
         return None
 
 def upload_media(image_path: str) -> Optional[str]:
-    """Upload media to Twitter."""
+    """Upload media to Twitter with enhanced error handling."""
     try:
         logger.info(f"Uploading image: {image_path}")
         auth = tweepy.OAuth1UserHandler(
@@ -57,12 +116,23 @@ def upload_media(image_path: str) -> Optional[str]:
         media = api.media_upload(filename=image_path)
         logger.info("Media upload successful")
         return media.media_id_string
+    except tweepy.Forbidden as e:
+        logger.error(f"403 Forbidden - Media upload failed: {e}")
+        logger.error("This could be due to:")
+        logger.error("- File type not supported")
+        logger.error("- File size too large")
+        logger.error("- API permission issues")
+        return None
+    except tweepy.Unauthorized as e:
+        logger.error(f"401 Unauthorized - Media upload failed: {e}")
+        logger.error("Check your Twitter API credentials")
+        return None
     except Exception as e:
         logger.error(f"Media upload failed: {e}")
         return None
 
 def post_tweet(client: tweepy.Client, text: str, media_id: Optional[str] = None) -> bool:
-    """Post a tweet to Twitter with optional media."""
+    """Post a tweet to Twitter with optional media and enhanced error handling."""
     try:
         logger.info("Posting tweet")
         
@@ -76,6 +146,22 @@ def post_tweet(client: tweepy.Client, text: str, media_id: Optional[str] = None)
         tweet_url = f"https://twitter.com/user/status/{tweet_id}"
         logger.info(f"Tweet posted successfully: {tweet_url}")
         return True
+    except tweepy.Forbidden as e:
+        logger.error(f"403 Forbidden - Tweet posting failed: {e}")
+        logger.error("This could be due to:")
+        logger.error("- Duplicate tweet")
+        logger.error("- Policy violation")
+        logger.error("- Rate limiting")
+        logger.error("- Account restrictions")
+        return False
+    except tweepy.Unauthorized as e:
+        logger.error(f"401 Unauthorized - Tweet posting failed: {e}")
+        logger.error("Check your Twitter API credentials and permissions")
+        return False
+    except tweepy.TooManyRequests as e:
+        logger.error(f"429 Too Many Requests - Tweet posting failed: {e}")
+        logger.error("Rate limit exceeded. Please wait before trying again")
+        return False
     except Exception as e:
         logger.error(f"Tweet posting failed: {e}")
         return False
@@ -92,7 +178,7 @@ def setup_openai():
         return None
 
 def research_topic(topic: str, tweet_length: int = 255) -> str:
-    """Research a topic using OpenAI and generate tweet content."""
+    """Research a topic using OpenAI and generate tweet content with enhanced error handling."""
     try:
         logger.info(f"Researching topic: {topic}")
         
@@ -127,6 +213,22 @@ def research_topic(topic: str, tweet_length: int = 255) -> str:
         logger.info(f"Tweet content generated: {tweet_content}")
         return tweet_content
         
+    except openai.AuthenticationError as e:
+        logger.error(f"OpenAI Authentication Error: {e}")
+        logger.error("Check your OpenAI API key")
+        return f"Check out this information about {topic}! #research #information"
+    except openai.PermissionDeniedError as e:
+        logger.error(f"OpenAI Permission Denied: {e}")
+        logger.error("Your API key doesn't have permission for this operation")
+        return f"Check out this information about {topic}! #research #information"
+    except openai.RateLimitError as e:
+        logger.error(f"OpenAI Rate Limit Error: {e}")
+        logger.error("You have exceeded your OpenAI API rate limit")
+        return f"Check out this information about {topic}! #research #information"
+    except openai.APIError as e:
+        logger.error(f"OpenAI API Error: {e}")
+        logger.error("There was an issue with the OpenAI API")
+        return f"Check out this information about {topic}! #research #information"
     except Exception as e:
         logger.error(f"Research failed: {e}")
         return f"Check out this information about {topic}! #research #information"
@@ -222,10 +324,14 @@ def main():
     success = post_tweet(client, tweet_text, media_id)
     if not success:
         logger.error("Tweet posting failed")
+        http_client.close()  # Clean up HTTP client
         sys.exit(1)
     
     logger.info("Tweet successfully posted")
     print("Tweet successfully posted!")
+    
+    # Clean up HTTP client
+    http_client.close()
 
 if __name__ == "__main__":
     main()
