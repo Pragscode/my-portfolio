@@ -6,14 +6,16 @@ import os
 import re
 import mysql.connector
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from http_utils import create_robust_session, RobustHTTPClient
 
 BASE_URL = "https://www.1mg.com/drugs-all-medicines?page={page}&label={alphabet}"
 all_data = []
 BATCH_SIZE = 1000
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-}
+
+# Create robust HTTP client
+http_client = create_robust_session(max_retries=3, backoff_factor=1.5, timeout=15)
 
 def csv_maker(data, filename="details_products2.csv"):
     file_exists = os.path.isfile(filename)
@@ -56,8 +58,18 @@ def insert_into_database(connection, data):
 
 def scrape_product_details(product_url):
     try:
-        req = requests.get(product_url, headers=HEADERS, timeout=10)
+        req = http_client.get(product_url)
         time.sleep(1)
+        
+        if req is None:
+            print(f"Failed to fetch {product_url} (Network error)")
+            return {"marketer_name": "No details", "salt_composition": "No details", "storage": "No details", "product_introduction": "No details", "side_effects": "No details"}
+        
+        if req.status_code == 403:
+            print(f"Access forbidden for {product_url} (Status: {req.status_code})")
+            print("This might be due to bot detection or rate limiting")
+            return {"marketer_name": "Access denied", "salt_composition": "Access denied", "storage": "Access denied", "product_introduction": "Access denied", "side_effects": "Access denied"}
+        
         if req.status_code != 200:
             print(f"Failed to fetch {product_url} (Status: {req.status_code})")
             return {"marketer_name": "No details", "salt_composition": "No details", "storage": "No details", "product_introduction": "No details", "side_effects": "No details"}
@@ -89,8 +101,8 @@ def scrape_product_details(product_url):
             "side_effects": side_effects
         }
 
-    except requests.exceptions.RequestException as e:
-        print(f"Request error: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         return {"marketer_name": "No details", "salt_composition": "No details", "storage": "No details", "product_introduction": "No details", "side_effects": "No details"}
 
 db_connection = connect_to_database()
@@ -106,8 +118,18 @@ for alphabet in 'abcdefghijklmnopqrstuvwxyz':
         print(f"Scraping: {url}")
 
         try:
-            req = requests.get(url, headers=HEADERS, timeout=10)
+            req = http_client.get(url)
             time.sleep(2)
+
+            if req is None:
+                print(f"Failed to fetch {url} (Network error)")
+                break
+                
+            if req.status_code == 403:
+                print(f"Access forbidden for {url} (Status: {req.status_code})")
+                print("This might be due to bot detection or rate limiting")
+                print("Consider implementing additional delays or using proxy servers")
+                break
 
             if req.status_code != 200:
                 print(f"Failed to fetch {url} (Status: {req.status_code})")
@@ -186,8 +208,8 @@ for alphabet in 'abcdefghijklmnopqrstuvwxyz':
                 print(f"Finished scraping for '{alphabet.upper()}'")
                 break
 
-        except requests.exceptions.RequestException as e:
-            print(f"Request error: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
             break
 
 if all_data:
@@ -195,5 +217,7 @@ if all_data:
     csv_maker(all_data)
     insert_into_database(db_connection, all_data)
 
+# Close HTTP client and database connection
+http_client.close()
 db_connection.close()
 print("Scraping completed.")
